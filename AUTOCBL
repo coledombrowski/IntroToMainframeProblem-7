@@ -1,0 +1,86 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. AUTOCBL.
+       AUTHOR.  put your name here.
+
+      * THIS PROGRAM IS ONLY TO BE RUN ON THE SYSTEM Z
+
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+
+           SELECT AUTOS-INPUT-FILE  ASSIGN TO   AUTOIN.
+           SELECT AUTOS-OUTPUT-FILE ASSIGN TO   AUTOOUT.
+
+       DATA DIVISION.
+       FILE SECTION.
+
+       FD  AUTOS-INPUT-FILE RECORDING MODE IS F.
+       01                              PIC X(80).
+
+       FD  AUTOS-OUTPUT-FILE RECORDING MODE IS F.
+       01  PRINT-LINE                   PIC X(132).
+
+       WORKING-STORAGE SECTION.
+
+       01  WORKING-VARIABLES.
+           05 EOF-AUTOS-DATA-WS        PIC X(3) VALUE 'NO'.
+
+       01  AUTOS-INPUT-RECORD.
+           05 BRAND-NAME-IN            PIC X(20).
+           05 QUANTITY-IN              PIC X(3).
+
+       01  AUTOS-OUTPUT-RECORD.
+           05 BRAND-NAME-OUT           PIC X(20).
+           05 QUANTITY-OUT             PIC X(3).
+
+       01  REPORT-HEADER.
+           05                         PIC X(20)  VALUE
+              'AUTOMOBILE INVENTORY'.
+           05  FILLER                 PIC X(1)  VALUE SPACE.
+           05                         PIC X(33)  VALUE
+              'REPORT FOR SUPER STUDENT'.
+
+       01  COLUMN-HEADER.
+           05 FILLER         PIC X VALUE SPACE.
+           05 FILLER         PIC X(5)
+                             VALUE 'BRAND'.
+           05 FILLER         PIC X(11) VALUE SPACE.
+           05                PIC X(12)
+                             VALUE 'QTY IN STOCK'.
+
+       PROCEDURE DIVISION.
+
+       100-MAINLINE.
+           PERFORM 200-OPEN
+           PERFORM 300-PROCESS UNTIL EOF-AUTOS-DATA-WS = 'YES'
+           PERFORM 900-CLOSE
+           STOP RUN.
+
+       200-OPEN.
+           OPEN INPUT AUTOS-INPUT-FILE OUTPUT AUTOS-OUTPUT-FILE
+
+           PERFORM 250-READ
+           PERFORM 500-HEADER.
+
+       250-READ.
+           READ AUTOS-INPUT-FILE
+           INTO AUTOS-INPUT-RECORD AT END MOVE 'YES'
+           TO EOF-AUTOS-DATA-WS
+           END-READ.
+
+       300-PROCESS.
+           MOVE BRAND-NAME-IN TO BRAND-NAME-OUT
+           MOVE QUANTITY-IN TO QUANTITY-OUT
+
+           WRITE PRINT-LINE FROM AUTOS-OUTPUT-RECORD
+
+           PERFORM 250-READ.
+
+       500-HEADER.
+           WRITE PRINT-LINE FROM REPORT-HEADER
+           WRITE PRINT-LINE FROM COLUMN-HEADER AFTER 2 LINES
+           MOVE SPACES TO PRINT-LINE
+           WRITE PRINT-LINE AFTER 2 LINES.
+
+       900-CLOSE.
+           CLOSE AUTOS-INPUT-FILE AUTOS-OUTPUT-FILE.
